@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Shadow Shift — Study 3: Preserve</title>
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  --page:#e4e4e4; --ink:#1c1c1c; --muted:#6a6a6a;
+  --btn-bg:#1c1c1c; --btn-ink:#f2f2f2; --btn-hover:#3d3d3d; --btn-done:#c9c9c9; --btn-done-ink:#3a3a3a;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){ --page:#141414; --ink:#e6e6e6; --muted:#8c8c8c;
+    --btn-bg:#e6e6e6; --btn-ink:#141414; --btn-hover:#ffffff; --btn-done:#2a2a2a; --btn-done-ink:#b5b5b5; }
+}
+:root[data-theme="dark"]{ --page:#141414; --ink:#e6e6e6; --muted:#8c8c8c;
+  --btn-bg:#e6e6e6; --btn-ink:#141414; --btn-hover:#ffffff; --btn-done:#2a2a2a; --btn-done-ink:#b5b5b5; }
+*,*::before,*::after{box-sizing:inherit}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{
+  margin:0;min-height:100%;background:var(--page);color:var(--ink);
+  font-family:"Iowan Old Style",Palatino,"Palatino Linotype",Georgia,serif;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:24px 16px;gap:18px;
+}
+header{width:100%;max-width:880px}
+h1{margin:0;font-size:1.25rem;font-weight:500;letter-spacing:.01em}
+header p{margin:4px 0 0;color:var(--muted);font-size:.9rem}
+.stage{position:relative;width:100%;max-width:880px;aspect-ratio:16/9;background:#1b1b1b;overflow:hidden;border-radius:2px;user-select:none;-webkit-user-select:none}
+.stage svg{display:block;width:100%;height:100%}
+.flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
+.flash.go{animation:flash 1500ms cubic-bezier(.2,.7,.3,1) forwards}
+@keyframes flash{0%{opacity:0}7%{opacity:1}22%{opacity:1}100%{opacity:0}}
+
+/* dimming — slow, deliberate */
+.dimmable{transition:opacity 2600ms cubic-bezier(.5,0,.2,1)}
+#glowRect{opacity:1}
+#dimFloor{opacity:0}
+#dimSphere{opacity:0}
+#haloBulb{opacity:.25}
+#bulbCore{transition:fill 2600ms cubic-bezier(.5,0,.2,1)}
+#afterimage{opacity:0}
+.captured #glowRect{opacity:0}
+.captured #dimFloor{opacity:.5}
+.captured #dimSphere{opacity:.62}
+.captured #haloBulb{opacity:0}
+.captured #bulbCore{fill:#4a4a4a}
+.captured #afterimage{opacity:.22;transition-delay:600ms}
+.snap #glowRect,.snap #dimFloor,.snap #dimSphere,.snap #haloBulb,.snap #afterimage,.snap #bulbCore{transition-duration:300ms;transition-delay:0ms}
+
+.controls{width:100%;max-width:880px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+button{
+  appearance:none;border:0;border-radius:2px;cursor:pointer;
+  background:var(--btn-bg);color:var(--btn-ink);
+  font:600 .8rem system-ui,-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;letter-spacing:.16em;
+  padding:14px 26px;min-height:44px;
+  transition:background-color 220ms ease,filter 220ms ease,color 400ms ease;
+}
+button:hover:not(:disabled){background:var(--btn-hover);filter:brightness(1.12)}
+button:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
+button:disabled{cursor:default}
+button.done{background:var(--btn-done);color:var(--btn-done-ink)}
+.status{margin:0;min-height:1.2em;color:var(--muted);font-size:.85rem;flex:1 1 220px}
+</style>
+</head>
+<body>
+<header>
+  <h1>Shadow Shift — Study 3: Preserve</h1>
+  <p>One action: capture the shadow.</p>
+</header>
+
+<div class="stage" id="stage">
+  <svg id="svg" viewBox="0 0 800 450" role="img" aria-label="A lit sphere on a floor with a lamp to its left, casting a shadow to the right. Capturing the shadow dims the lamp while the shadow stays.">
+    <defs>
+      <radialGradient id="glow" cx="400" cy="200" r="380" gradientUnits="userSpaceOnUse">
+        <stop offset="0" stop-color="#f4f4f4" stop-opacity=".55"/>
+        <stop offset=".35" stop-color="#cfcfcf" stop-opacity=".22"/>
+        <stop offset="1" stop-color="#9a9a9a" stop-opacity="0"/>
+      </radialGradient>
+      <radialGradient id="sphereOn" cx=".326" cy=".32" fx=".326" fy=".32" r=".75">
+        <stop offset="0" stop-color="#f2f2f2"/>
+        <stop offset=".55" stop-color="#a8a8a8"/>
+        <stop offset="1" stop-color="#4a4a4a"/>
+      </radialGradient>
+      <linearGradient id="floorOn" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#7a7a7a"/><stop offset="1" stop-color="#4a4a4a"/>
+      </linearGradient>
+      <filter id="halo" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="4"/></filter>
+      <filter id="soft" x="-30%" y="-100%" width="160%" height="300%"><feGaussianBlur stdDeviation="9"/></filter>
+      <filter id="edge" x="-30%" y="-100%" width="160%" height="300%"><feGaussianBlur stdDeviation="3"/></filter>
+    </defs>
+
+    <rect width="800" height="365" fill="#353535"/>
+    <rect y="365" width="800" height="85" fill="url(#floorOn)"/>
+    <rect id="glowRect" class="dimmable" width="800" height="450" fill="url(#glow)"/>
+    <rect id="dimFloor" class="dimmable" width="800" height="450" fill="#000"/>
+
+    <!-- rail (stationary) -->
+    <g stroke="#9a9a9a" stroke-linecap="round" opacity=".7">
+      <line x1="190" y1="378" x2="450" y2="378" stroke-width="2"/>
+      <line x1="190" y1="373" x2="190" y2="383" stroke-width="1.5"/>
+      <line x1="450" y1="373" x2="450" y2="383" stroke-width="1.5"/>
+    </g>
+
+    <!-- shadows: contact + cast (final position from Study 2, lamp at x=400) -->
+    <ellipse cx="590" cy="368" rx="52" ry="7" fill="#0e0e0e" opacity=".55" filter="url(#soft)"/>
+    <ellipse cx="670" cy="368" rx="83" ry="12" fill="#0e0e0e" opacity=".82" filter="url(#soft)"/>
+    <ellipse id="afterimage" class="dimmable" cx="670" cy="368" rx="86" ry="13" fill="none" stroke="#e8e8e8" stroke-width="1.5" filter="url(#edge)"/>
+
+    <!-- sphere (fixed) -->
+    <circle cx="590" cy="295" r="70" fill="url(#sphereOn)"/>
+    <circle id="dimSphere" class="dimmable" cx="590" cy="295" r="70" fill="#000"/>
+
+    <!-- lamp (fixed at x=400) -->
+    <g transform="translate(400 0)">
+      <g id="haloBulb" class="dimmable" fill="none" stroke="#f0f0f0">
+        <g filter="url(#halo)" stroke-width="3" opacity=".8">
+          <path d="M-44 190 Q0 140 44 190 Z"/><rect x="-2" y="196" width="4" height="162"/><rect x="-34" y="356" width="68" height="10" rx="3"/>
+        </g>
+      </g>
+      <ellipse cx="0" cy="366" rx="34" ry="6" fill="#0f0f0f" opacity=".6"/>
+      <rect x="-34" y="356" width="68" height="10" rx="3" fill="#3a3a3a"/>
+      <rect x="-2" y="196" width="4" height="162" fill="#3a3a3a"/>
+      <circle id="bulbCore" cx="0" cy="203" r="11" fill="#fafafa"/>
+      <path d="M-44 190 Q0 140 44 190 Z" fill="#8e8e8e"/>
+    </g>
+  </svg>
+  <div class="flash" id="flash" aria-hidden="true"></div>
+</div>
+
+<div class="controls">
+  <button id="btn" type="button">CAPTURE SHADOW</button>
+  <p class="status" id="status" role="status" aria-live="polite">The lamp is on. The shadow falls to the right.</p>
+</div>
+
+<script>
+(function(){
+  var stage=document.getElementById('stage');
+  var flash=document.getElementById('flash');
+  var btn=document.getElementById('btn');
+  var status=document.getElementById('status');
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+  var busy=false;
+
+  btn.addEventListener('click',function(){
+    if(busy)return;
+    busy=true;
+    btn.disabled=true;
+    status.textContent='Capturing…';
+    if(reduce){
+      stage.classList.add('snap','captured');
+      finish(350);
+      return;
+    }
+    flash.classList.add('go');
+    // the lamp begins to die just as the flash peaks
+    setTimeout(function(){stage.classList.add('captured');},330);
+    finish(1900);
+  });
+
+  function finish(delay){
+    setTimeout(function(){
+      btn.textContent='SHADOW CAPTURED';
+      btn.classList.add('done');
+      btn.setAttribute('aria-label','Shadow captured');
+      status.textContent='The lamp has gone dark. The shadow remains.';
+    },delay);
+  }
+})();
+</script>
+</body>
+</html>
