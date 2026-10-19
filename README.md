@@ -18,6 +18,20 @@ Three preset variations and a state preview are available in the authoring panel
 
 The preview buttons are authoring aids. The default URL starts the actual sequential interaction. To document each variation, open its URL, wait for any transition to settle, take a browser screenshot with both the scene and controls visible, and add it to the Week 5 process table.
 
+## Captured settings variations
+
+Each screenshot shows the actual prototype with the authoring panel open and its resulting scene:
+
+| Variation | Values and scene |
+| --- | --- |
+| Soft / Reveal | [View screenshot](screenshots/soft-reveal.png) · brightness 48%, length 70, softness 26, reveal 1.6 s, afterimage 36% |
+| Long / Shift | [View screenshot](screenshots/long-shift.png) · brightness 85%, length 150, softness 8, reveal 0.7 s, afterimage 60% |
+| Dense / Preserve | [View screenshot](screenshots/dense-preserve.png) · brightness 100%, length 108, softness 2, reveal 0.4 s, afterimage 95% |
+
+![Soft / Reveal prototype and controls](screenshots/soft-reveal.png)
+![Long / Shift prototype and controls](screenshots/long-shift.png)
+![Dense / Preserve prototype and controls](screenshots/dense-preserve.png)
+
 ## GitHub Pages
 
 Upload this folder's contents to the root of a public GitHub repository. In **Settings → Pages**, choose **Deploy from a branch**, branch **main**, folder **/(root)**. Once published, the live URL has the form `https://USERNAME.github.io/REPOSITORY/`. The README is informational; `index.html` is the site entry point.
