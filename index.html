@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#111216">
+  <title>Shadow Shift — Sequential Prototype</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body data-mode="sequence">
+  <main class="shell">
+    <header class="masthead">
+      <div class="brand"><span class="brand-mark" aria-hidden="true"></span> SHADOW SHIFT <span class="muted">/ INTERACTION STUDY</span></div>
+      <button class="control-toggle" id="controlToggle" type="button" aria-expanded="false" aria-controls="controls">OPEN CONTROLS <span aria-hidden="true">☷</span></button>
+    </header>
+
+    <section class="stage-wrap" aria-label="Interactive light and shadow scene">
+      <div class="stage">
+        <svg id="scene" viewBox="0 0 1000 650" role="img" aria-label="A lamp, a stationary sphere, and its cast shadow">
+          <defs>
+            <linearGradient id="wall" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0" stop-color="#17191d"/><stop offset="1" stop-color="#313237"/>
+            </linearGradient>
+            <linearGradient id="ground" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0" stop-color="#414247"/><stop offset="1" stop-color="#1d1e22"/>
+            </linearGradient>
+            <radialGradient id="sphereShade" cx="31%" cy="22%" r="79%">
+              <stop offset="0" stop-color="#f0f0ed"/><stop offset=".47" stop-color="#aaa9a6"/><stop offset="1" stop-color="#3e3e40"/>
+            </radialGradient>
+            <linearGradient id="beamGrad" x1="0" x2=".85" y1="0" y2="1">
+              <stop offset="0" stop-color="#f2f2ec" stop-opacity=".46"/>
+              <stop offset="1" stop-color="#f2f2ec" stop-opacity="0"/>
+            </linearGradient>
+            <filter id="shadowBlur"><feGaussianBlur id="blurNode" stdDeviation="13"/></filter>
+            <filter id="lightGlow"><feGaussianBlur stdDeviation="14"/></filter>
+          </defs>
+          <rect width="1000" height="650" fill="url(#wall)"/>
+          <path d="M0 426H1000V650H0Z" fill="url(#ground)"/>
+          <path d="M0 426H1000" stroke="#747478" stroke-width="1" opacity=".4"/>
+          <ellipse id="ambientPool" cx="555" cy="435" rx="345" ry="102" fill="#eeeee9" opacity="0" filter="url(#lightGlow)"/>
+          <path id="beam" d="" fill="url(#beamGrad)" opacity="0"/>
+          <ellipse id="castShadow" cx="753" cy="451" rx="94" ry="20" fill="#050506" opacity="0" filter="url(#shadowBlur)"/>
+          <ellipse id="afterimage" cx="753" cy="451" rx="94" ry="20" fill="#050506" opacity="0"/>
+          <ellipse cx="590" cy="441" rx="88" ry="17" fill="#0b0b0d" opacity=".35"/>
+          <circle id="sphere" cx="590" cy="364" r="78" fill="url(#sphereShade)" opacity=".18"/>
+          <circle cx="590" cy="364" r="78" fill="none" stroke="#fcfcfa" stroke-opacity=".17" stroke-width="1.5"/>
+          <path d="M180 116H790" stroke="#8a8b90" stroke-width="3" stroke-linecap="round" opacity=".7"/>
+          <path d="M180 110V122M790 110V122" stroke="#8a8b90" stroke-width="3"/>
+          <g id="lamp" class="lamp" role="button" tabindex="0" aria-label="Turn on the lamp">
+            <rect x="-18" y="104" width="36" height="21" rx="5" fill="#626368"/>
+            <path d="M-8 125L-16 173L40 210" fill="none" stroke="#85868a" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M10 173L59 192L38 229L-6 197Z" fill="#a6a6a7" stroke="#d0d0d0" stroke-width="2"/>
+            <path d="M4 198L39 215" stroke="#f1f1ef" stroke-width="4" stroke-linecap="round" opacity=".2"/>
+            <circle id="bulb" cx="21" cy="208" r="16" fill="#fff" opacity=".12" filter="url(#lightGlow)"/>
+            <circle cx="21" cy="208" r="5" fill="#f5f5ed" opacity=".3"/>
+            <rect x="-36" y="95" width="72" height="38" rx="15" fill="transparent"/>
+          </g>
+          <g id="dragHint" class="drag-hint" opacity="0">
+            <path d="M-24 92H25M-24 92L-14 82M-24 92L-14 102M25 92L15 82M25 92L15 102" fill="none" stroke="#f1f1ed" stroke-width="2"/>
+          </g>
+          <path d="M44 584H956" stroke="#d1d1cf" stroke-opacity=".16"/>
+          <text x="48" y="613" fill="#b3b3b2" font-size="13" font-family="Arial, sans-serif" letter-spacing="2">LIGHT / OBJECT / TRACE</text>
+          <text x="952" y="613" fill="#b3b3b2" font-size="13" font-family="Arial, sans-serif" letter-spacing="2" text-anchor="end" id="sceneLabel">01 — REVEAL</text>
+        </svg>
+        <div class="flash" id="flash" aria-hidden="true"></div>
+        <div class="scene-head">
+          <span class="eyebrow" id="stageNumber">STUDY 01 / 03</span>
+          <h1 id="stageTitle">Give the dark a source.</h1>
+          <p id="stageInstruction">Click the lamp or turn on the light to reveal its shadow.</p>
+        </div>
+        <div class="scene-foot">
+          <span class="live-dot" aria-hidden="true"></span><span id="feedback" role="status" aria-live="polite">LAMP OFF · SHADOW HIDDEN</span>
+          <button id="actionButton" class="action-button" type="button">TURN ON LIGHT <span aria-hidden="true">↗</span></button>
+          <button id="resetButton" class="reset-button" type="button" hidden>REPLAY SEQUENCE ↺</button>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <div class="steps" aria-label="Sequence progress">
+        <span class="step active" id="step1"><b>01</b> REVEAL</span>
+        <span class="step" id="step2"><b>02</b> SHIFT</span>
+        <span class="step" id="step3"><b>03</b> PRESERVE</span>
+      </div>
+      <nav class="source-links" aria-label="Original Claude studies">
+        <a href="studies/01-reveal/">ORIGINAL 01</a>
+        <a href="studies/02-shift/">ORIGINAL 02</a>
+        <a href="studies/03-preserve/">ORIGINAL 03</a>
+      </nav>
+    </footer>
+  </main>
+
+  <aside class="controls" id="controls" aria-label="Prototype authoring controls" hidden>
+    <div class="controls-top">
+      <div><span class="eyebrow">AUTHORING TOOL</span><h2>Light controls</h2></div>
+      <button id="closeControls" class="icon-button" type="button" aria-label="Hide controls">×</button>
+    </div>
+    <p class="control-note">Change a value and see the scene respond. Save your defaults, then hide this panel for the final experience.</p>
+    <div class="control-field"><label for="brightness">Lamp brightness <output id="brightnessValue">74%</output></label><input id="brightness" type="range" min="25" max="100" value="74"></div>
+    <div class="control-field"><label for="shadowLength">Shadow length <output id="shadowLengthValue">94</output></label><input id="shadowLength" type="range" min="50" max="160" value="94"></div>
+    <div class="control-field"><label for="softness">Edge softness <output id="softnessValue">13</output></label><input id="softness" type="range" min="0" max="30" value="13"></div>
+    <div class="control-field"><label for="revealSpeed">Reveal time <output id="revealSpeedValue">0.9s</output></label><input id="revealSpeed" type="range" min="3" max="20" value="9"></div>
+    <div class="control-field"><label for="imprint">Afterimage strength <output id="imprintValue">66%</output></label><input id="imprint" type="range" min="20" max="100" value="66"></div>
+    <div class="control-section"><span class="eyebrow">SETTINGS VARIATIONS</span><div class="preset-row">
+      <button type="button" data-preset="soft">SOFT</button><button type="button" data-preset="long">LONG</button><button type="button" data-preset="dense">DENSE</button>
+    </div></div>
+    <div class="control-section"><span class="eyebrow">PREVIEW A STATE</span><div class="preset-row">
+      <button type="button" data-preview="reveal">REVEAL</button><button type="button" data-preview="shift">SHIFT</button><button type="button" data-preview="preserve">PRESERVE</button>
+    </div></div>
+    <button id="copySettings" class="panel-primary" type="button">COPY SETTINGS</button>
+    <div class="panel-actions"><button id="saveDefaults" type="button">SAVE AS DEFAULTS</button><button id="restoreDefaults" type="button">RESTORE DEFAULTS</button></div>
+    <p id="panelStatus" role="status" aria-live="polite">Changes preview live.</p>
+  </aside>
+</body>
+</html>
