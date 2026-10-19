@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Shadow Shift — Study 2: Shift</title>
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  --page:#e4e4e4; --ink:#1c1c1c; --muted:#6a6a6a;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){ --page:#141414; --ink:#e6e6e6; --muted:#8c8c8c; }
+}
+:root[data-theme="dark"]{ --page:#141414; --ink:#e6e6e6; --muted:#8c8c8c; }
+*,*::before,*::after{box-sizing:inherit}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{
+  margin:0;min-height:100%;background:var(--page);color:var(--ink);
+  font-family:"Iowan Old Style",Palatino,"Palatino Linotype",Georgia,serif;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:24px 16px;gap:18px;
+}
+header{width:100%;max-width:880px}
+h1{margin:0;font-size:1.25rem;font-weight:500;letter-spacing:.01em}
+header p{margin:4px 0 0;color:var(--muted);font-size:.9rem}
+.stage{
+  width:100%;max-width:880px;aspect-ratio:16/9;background:#1b1b1b;
+  overflow:hidden;border-radius:2px;touch-action:none;user-select:none;-webkit-user-select:none;
+}
+.stage svg{display:block;width:100%;height:100%}
+#lamp{cursor:grab;outline:none;touch-action:none}
+#lamp.drag{cursor:grabbing}
+#lamp .halo{opacity:0;transition:opacity 250ms ease}
+#lamp:hover .halo,#lamp:focus-visible .halo,#lamp.drag .halo{opacity:1}
+#lamp .cue{transition:opacity 250ms ease;opacity:.6}
+#lamp:hover .cue,#lamp:focus-visible .cue,#lamp.drag .cue{opacity:1}
+.status{width:100%;max-width:880px;min-height:1.2em;margin:0;color:var(--muted);font-size:.85rem}
+</style>
+</head>
+<body>
+<header>
+  <h1>Shadow Shift — Study 2: Shift</h1>
+  <p>One action: drag the lamp.</p>
+</header>
+
+<div class="stage" id="stage">
+  <svg id="svg" viewBox="0 0 800 450" role="img" aria-label="A lit sphere on a floor with a lamp on a short rail to its left. Dragging the lamp moves the light, and the shadow shifts the opposite way.">
+    <defs>
+      <radialGradient id="glow" cx="330" cy="200" r="380" gradientUnits="userSpaceOnUse">
+        <stop offset="0" stop-color="#f4f4f4" stop-opacity=".55"/>
+        <stop offset=".35" stop-color="#cfcfcf" stop-opacity=".22"/>
+        <stop offset="1" stop-color="#9a9a9a" stop-opacity="0"/>
+      </radialGradient>
+      <radialGradient id="sphereOn" cx=".32" cy=".32" fx=".32" fy=".32" r=".75">
+        <stop offset="0" stop-color="#f2f2f2"/>
+        <stop offset=".55" stop-color="#a8a8a8"/>
+        <stop offset="1" stop-color="#4a4a4a"/>
+      </radialGradient>
+      <linearGradient id="floorOn" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#7a7a7a"/><stop offset="1" stop-color="#4a4a4a"/>
+      </linearGradient>
+      <filter id="halo" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="4"/></filter>
+      <filter id="soft" x="-30%" y="-100%" width="160%" height="300%"><feGaussianBlur stdDeviation="9"/></filter>
+    </defs>
+
+    <rect width="800" height="365" fill="#353535"/>
+    <rect y="365" width="800" height="85" fill="url(#floorOn)"/>
+    <rect width="800" height="450" fill="url(#glow)"/>
+
+    <!-- rail -->
+    <g stroke="#9a9a9a" stroke-linecap="round" opacity=".7">
+      <line x1="190" y1="378" x2="450" y2="378" stroke-width="2"/>
+      <line x1="190" y1="373" x2="190" y2="383" stroke-width="1.5"/>
+      <line x1="450" y1="373" x2="450" y2="383" stroke-width="1.5"/>
+    </g>
+
+    <!-- shadows: contact + cast -->
+    <ellipse cx="590" cy="368" rx="52" ry="7" fill="#0e0e0e" opacity=".55" filter="url(#soft)"/>
+    <ellipse id="shadow" cx="700" cy="368" rx="88" ry="12" fill="#0e0e0e" opacity=".9" filter="url(#soft)"/>
+
+    <!-- sphere (fixed) -->
+    <circle cx="590" cy="295" r="70" fill="url(#sphereOn)"/>
+
+    <!-- lamp -->
+    <g id="lamp" role="slider" tabindex="0" aria-label="Lamp position" aria-valuemin="190" aria-valuemax="450" aria-valuenow="330" transform="translate(0 0)">
+      <rect x="-54" y="135" width="108" height="250" fill="#000" fill-opacity="0" transform="translate(330 0)"/>
+      <g transform="translate(330 0)">
+        <g class="halo" fill="none" stroke="#f0f0f0">
+          <g filter="url(#halo)" stroke-width="3" opacity=".8">
+            <path d="M-44 190 Q0 140 44 190 Z"/><rect x="-2" y="196" width="4" height="162"/><rect x="-34" y="356" width="68" height="10" rx="3"/>
+          </g>
+          <g stroke-width="1.2">
+            <path d="M-44 190 Q0 140 44 190 Z"/><rect x="-2" y="196" width="4" height="162"/><rect x="-34" y="356" width="68" height="10" rx="3"/>
+          </g>
+        </g>
+        <ellipse cx="0" cy="366" rx="34" ry="6" fill="#0f0f0f" opacity=".6"/>
+        <rect x="-34" y="356" width="68" height="10" rx="3" fill="#3a3a3a"/>
+        <rect x="-2" y="196" width="4" height="162" fill="#3a3a3a"/>
+        <circle cx="0" cy="203" r="11" fill="#fafafa"/>
+        <circle cx="0" cy="203" r="20" fill="#ffffff" opacity=".25"/>
+        <path d="M-44 190 Q0 140 44 190 Z" fill="#8e8e8e"/>
+        <g class="cue" fill="#e6e6e6" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="10" font-weight="600" letter-spacing="1.4" text-anchor="middle">
+          <text x="0" y="404">◂  DRAG LAMP  ▸</text>
+        </g>
+      </g>
+    </g>
+  </svg>
+</div>
+
+<p class="status" id="status" role="status" aria-live="polite">Drag the lamp along the rail.</p>
+
+<script>
+(function(){
+  var MIN=190, MAX=450, SX=590, SY=295;
+  var svg=document.getElementById('svg');
+  var lamp=document.getElementById('lamp');
+  var shadow=document.getElementById('shadow');
+  var glow=document.getElementById('glow');
+  var sphere=document.getElementById('sphereOn');
+  var status=document.getElementById('status');
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+  var lampX=330, shadowX=330, dragging=false, raf=0, offsetX=0;
+
+  function clamp(v){return Math.max(MIN,Math.min(MAX,v));}
+
+  function drawLamp(){
+    lamp.setAttribute('transform','translate('+(lampX-330)+' 0)');
+    lamp.setAttribute('aria-valuenow',Math.round(lampX));
+    glow.setAttribute('cx',lampX);
+    var h=0.5+((lampX-SX)/600)*0.55;
+    sphere.setAttribute('cx',h);sphere.setAttribute('fx',h);
+  }
+  function drawShadow(){
+    var d=SX-shadowX;                       // distance lamp -> sphere (using eased lamp pos)
+    shadow.setAttribute('cx',SX+d*0.42);
+    shadow.setAttribute('rx',70+d*0.07);
+    shadow.setAttribute('opacity',(0.95-d*0.0007).toFixed(3));
+  }
+  function tick(){
+    var diff=lampX-shadowX;
+    shadowX=reduce?lampX:shadowX+diff*0.14;
+    if(Math.abs(lampX-shadowX)<0.05)shadowX=lampX;
+    drawShadow();
+    raf=(shadowX!==lampX||dragging)?requestAnimationFrame(tick):0;
+  }
+  function kick(){if(!raf)raf=requestAnimationFrame(tick);}
+
+  function svgX(e){
+    var pt=svg.createSVGPoint();pt.x=e.clientX;pt.y=e.clientY;
+    return pt.matrixTransform(svg.getScreenCTM().inverse()).x;
+  }
+  function setLamp(x){lampX=clamp(x);drawLamp();kick();}
+
+  lamp.addEventListener('pointerdown',function(e){
+    dragging=true;lamp.classList.add('drag');
+    offsetX=lampX-svgX(e);
+    lamp.setPointerCapture(e.pointerId);
+    e.preventDefault();kick();
+  });
+  lamp.addEventListener('pointermove',function(e){
+    if(!dragging)return;
+    setLamp(svgX(e)+offsetX);
+  });
+  function end(e){
+    if(!dragging)return;
+    dragging=false;lamp.classList.remove('drag');
+    try{lamp.releasePointerCapture(e.pointerId);}catch(_){}
+    status.textContent='Lamp placed '+(lampX<330?'further left':lampX>330?'closer to the sphere':'at the start')+'. The shadow settles on the right.';
+    kick();
+  }
+  lamp.addEventListener('pointerup',end);
+  lamp.addEventListener('pointercancel',end);
+  lamp.addEventListener('keydown',function(e){
+    var s=e.shiftKey?30:10;
+    if(e.key==='ArrowLeft'){e.preventDefault();setLamp(lampX-s);}
+    else if(e.key==='ArrowRight'){e.preventDefault();setLamp(lampX+s);}
+  });
+
+  drawLamp();drawShadow();
+})();
+</script>
+</body>
+</html>
